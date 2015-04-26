@@ -6,7 +6,7 @@
     module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'))
   else
     root.StrictParameters = factory(root, root._, root.yess)
-)(@, (root, _, yess) ->
+)(this, (root, _, yess) ->
   {traverseObject} = yess
   {extend, isFunction, isPlainObject} = _
   

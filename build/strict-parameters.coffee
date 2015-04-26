@@ -1,12 +1,12 @@
 ((root, factory) ->
   if typeof define is 'function' and define.amd
-    define(['lodash','yess','coffee-concerns'], factory)
+    define ['lodash', 'yess', 'coffee-concerns'], (_, yess) ->
+      root.StrictParameters = factory(root, _, yess)
   else if typeof module is 'object' && typeof module.exports is 'object'
-    module.exports = factory(require('lodash'),require('yess'),require('coffee-concerns'))
+    module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'))
   else
-    root.StrictParameters = factory(root._,root.yess,root.null)
-)(@, (_,yess) ->
-
+    root.StrictParameters = factory(root, root._, root.yess)
+)(@, (root, _, yess) ->
   {traverseObject} = yess
   {extend, isFunction, isPlainObject} = _
   

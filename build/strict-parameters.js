@@ -3,13 +3,15 @@
 
   (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
-      return define(['lodash', 'yess', 'coffee-concerns'], factory);
+      return define(['lodash', 'yess', 'coffee-concerns'], function(_, yess) {
+        return root.StrictParameters = factory(root, _, yess);
+      });
     } else if (typeof module === 'object' && typeof module.exports === 'object') {
-      return module.exports = factory(require('lodash'), require('yess'), require('coffee-concerns'));
+      return module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'));
     } else {
-      return root.StrictParameters = factory(root._, root.yess, root["null"]);
+      return root.StrictParameters = factory(root, root._, root.yess);
     }
-  })(this, function(_, yess) {
+  })(this, function(root, _, yess) {
     var extend, isFunction, isPlainObject, traverseObject;
     traverseObject = yess.traverseObject;
     extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject;

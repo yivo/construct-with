@@ -6,58 +6,63 @@
     module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'))
   else
     root.StrictParameters = factory(root, root._, root.yess)
+  return
 )(this, (root, _, yess) ->
-  {traverseObject} = yess
-  {extend, isFunction, isPlainObject} = _
+  {extend, isFunction, isPlainObject, traverseObject} = _
+  hasOwnProp = {}.hasOwnProperty
   
   InstanceMembers:
   
     claimedParameters: []
   
     mergeParams: (data) ->
-      return unless isPlainObject(data)
+      return this unless isPlainObject(data)
   
       if @options
         # Let the initial options be a function
         if isFunction(@options)
-          @options = @options.call(@)
+          @options = @options.call(this)
         extend(@options, data)
       else
         @options = data
   
-      return @ unless config = @claimedParameters
+      return this unless config = @claimedParameters
   
       for {name, as, required, alias} in config
         param = traverseObject(data, name)
   
-        if param is null or param is undefined
+        unless param?
           param = traverseObject(this, name)
   
-        if param is null or param is undefined
-          if required
-            throw new Error("#{@constructor.name or this} requires #{name} to be given on construction (in #{this})")
+        if !param? and required
+          throw new Error("#{@constructor.name or this} requires parameter '#{name}' to present (in #{this})")
         else
           @[as] = param
           @[alias] = param if alias
-      @
+      this
   
   ClassMembers:
     param: (name, options) ->
-      @reopen 'claimedParameters', (params) ->
-        index = -1
+      prototype = this::
   
-        for present, i in params when present.name is name
-          index = i
-          break
+      if !hasOwnProp.call(prototype, 'claimedParameters') and params = prototype.claimedParameters
+        prototype.claimedParameters = [].concat(params)
   
-        param = params[index] if index > -1
-        param = extend({name}, param, options)
-        param.as ||= name.slice(name.lastIndexOf('.') + 1)
+      params = prototype.claimedParameters
+      index  = -1
   
-        if index > -1
-          params[index] = param
-        else params.push(param)
-      @
+      for present, i in params when present.name is name
+        index = i
+        break
+  
+      param = params[index] if index > -1
+      param = extend({name}, param, options)
+      param.as ||= name.slice(name.lastIndexOf('.') + 1)
+  
+      if index > -1
+        params[index] = param
+      else params.push(param)
+      this
   
     params: (names..., last) ->
       # Last argument can be either name, either options
@@ -69,5 +74,5 @@
       # If last arg isn't options then it is name
       unless options
         @param(last)
-      @
+      this
 )

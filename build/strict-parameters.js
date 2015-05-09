@@ -3,25 +3,25 @@
 
   (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
-      return define(['lodash', 'yess', 'coffee-concerns'], function(_, yess) {
+      define(['lodash', 'yess', 'coffee-concerns'], function(_, yess) {
         return root.StrictParameters = factory(root, _, yess);
       });
     } else if (typeof module === 'object' && typeof module.exports === 'object') {
-      return module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'));
+      module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'));
     } else {
-      return root.StrictParameters = factory(root, root._, root.yess);
+      root.StrictParameters = factory(root, root._, root.yess);
     }
   })(this, function(root, _, yess) {
-    var extend, isFunction, isPlainObject, traverseObject;
-    traverseObject = yess.traverseObject;
-    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject;
+    var extend, hasOwnProp, isFunction, isPlainObject, traverseObject;
+    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject, traverseObject = _.traverseObject;
+    hasOwnProp = {}.hasOwnProperty;
     return {
       InstanceMembers: {
         claimedParameters: [],
         mergeParams: function(data) {
           var alias, as, config, j, len, name, param, ref, required;
           if (!isPlainObject(data)) {
-            return;
+            return this;
           }
           if (this.options) {
             if (isFunction(this.options)) {
@@ -37,13 +37,11 @@
           for (j = 0, len = config.length; j < len; j++) {
             ref = config[j], name = ref.name, as = ref.as, required = ref.required, alias = ref.alias;
             param = traverseObject(data, name);
-            if (param === null || param === void 0) {
+            if (param == null) {
               param = traverseObject(this, name);
             }
-            if (param === null || param === void 0) {
-              if (required) {
-                throw new Error((this.constructor.name || this) + " requires " + name + " to be given on construction (in " + this + ")");
-              }
+            if ((param == null) && required) {
+              throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
             } else {
               this[as] = param;
               if (alias) {
@@ -56,30 +54,33 @@
       },
       ClassMembers: {
         param: function(name, options) {
-          this.reopen('claimedParameters', function(params) {
-            var i, index, j, len, param, present;
-            index = -1;
-            for (i = j = 0, len = params.length; j < len; i = ++j) {
-              present = params[i];
-              if (!(present.name === name)) {
-                continue;
-              }
-              index = i;
-              break;
+          var i, index, j, len, param, params, present, prototype;
+          prototype = this.prototype;
+          if (!hasOwnProp.call(prototype, 'claimedParameters') && (params = prototype.claimedParameters)) {
+            prototype.claimedParameters = [].concat(params);
+          }
+          params = prototype.claimedParameters;
+          index = -1;
+          for (i = j = 0, len = params.length; j < len; i = ++j) {
+            present = params[i];
+            if (!(present.name === name)) {
+              continue;
             }
-            if (index > -1) {
-              param = params[index];
-            }
-            param = extend({
-              name: name
-            }, param, options);
-            param.as || (param.as = name.slice(name.lastIndexOf('.') + 1));
-            if (index > -1) {
-              return params[index] = param;
-            } else {
-              return params.push(param);
-            }
-          });
+            index = i;
+            break;
+          }
+          if (index > -1) {
+            param = params[index];
+          }
+          param = extend({
+            name: name
+          }, param, options);
+          param.as || (param.as = name.slice(name.lastIndexOf('.') + 1));
+          if (index > -1) {
+            params[index] = param;
+          } else {
+            params.push(param);
+          }
           return this;
         },
         params: function() {

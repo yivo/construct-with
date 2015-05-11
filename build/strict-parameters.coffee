@@ -13,8 +13,6 @@
   
   InstanceMembers:
   
-    claimedParameters: []
-  
     mergeParams: (data) ->
       return this unless isPlainObject(data)
   
@@ -45,10 +43,14 @@
     param: (name, options) ->
       prototype = this::
   
-      if !hasOwnProp.call(prototype, 'claimedParameters') and params = prototype.claimedParameters
-        prototype.claimedParameters = [].concat(params)
-  
       params = prototype.claimedParameters
+  
+      if !params
+        params = prototype.claimedParameters = []
+  
+      else unless hasOwnProp.call(prototype, 'claimedParameters')
+        params = prototype.claimedParameters = [].concat(params)
+  
       index  = -1
   
       for present, i in params when present.name is name
@@ -62,6 +64,7 @@
       if index > -1
         params[index] = param
       else params.push(param)
+  
       this
   
     params: (names..., last) ->

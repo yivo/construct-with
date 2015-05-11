@@ -17,7 +17,6 @@
     hasOwnProp = {}.hasOwnProperty;
     return {
       InstanceMembers: {
-        claimedParameters: [],
         mergeParams: function(data) {
           var alias, as, config, j, len, name, param, ref, required;
           if (!isPlainObject(data)) {
@@ -56,10 +55,12 @@
         param: function(name, options) {
           var i, index, j, len, param, params, present, prototype;
           prototype = this.prototype;
-          if (!hasOwnProp.call(prototype, 'claimedParameters') && (params = prototype.claimedParameters)) {
-            prototype.claimedParameters = [].concat(params);
-          }
           params = prototype.claimedParameters;
+          if (!params) {
+            params = prototype.claimedParameters = [];
+          } else if (!hasOwnProp.call(prototype, 'claimedParameters')) {
+            params = prototype.claimedParameters = [].concat(params);
+          }
           index = -1;
           for (i = j = 0, len = params.length; j < len; i = ++j) {
             present = params[i];

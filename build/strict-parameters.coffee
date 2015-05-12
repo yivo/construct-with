@@ -1,14 +1,14 @@
 ((root, factory) ->
   if typeof define is 'function' and define.amd
-    define ['lodash', 'yess', 'coffee-concerns'], (_, yess) ->
-      root.StrictParameters = factory(root, _, yess)
+    define ['lodash', 'yess'], (_) ->
+      root.StrictParameters = factory(root, _)
   else if typeof module is 'object' && typeof module.exports is 'object'
-    module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'))
+    module.exports = factory(root, require('lodash'), require('yess'))
   else
-    root.StrictParameters = factory(root, root._, root.yess)
+    root.StrictParameters = factory(root, root._)
   return
-)(this, (root, _, yess) ->
-  {extend, isFunction, isPlainObject, traverseObject} = _
+)(this, (root, _) ->
+  {extend, isFunction, isPlainObject, getProperty, setProperty} = _
   hasOwnProp = {}.hasOwnProperty
   
   InstanceMembers:
@@ -19,7 +19,7 @@
       if @options
         # Let the initial options be a function
         if isFunction(@options)
-          @options = @options.call(this)
+          @options = @options()
         extend(@options, data)
       else
         @options = data
@@ -27,16 +27,16 @@
       return this unless config = @claimedParameters
   
       for {name, as, required, alias} in config
-        param = traverseObject(data, name)
+        param = getProperty(data, name) ? getProperty(this, name)
   
-        unless param?
-          param = traverseObject(this, name)
+        if param?
+          setProperty(this, as, param)
+          if alias
+            setProperty(this, alias, param)
   
-        if !param? and required
+        else if required
           throw new Error("#{@constructor.name or this} requires parameter '#{name}' to present (in #{this})")
-        else
-          @[as] = param
-          @[alias] = param if alias
+  
       this
   
   ClassMembers:

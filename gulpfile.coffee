@@ -13,8 +13,7 @@ gulp.task 'default', ['build', 'watch'], ->
 
 dependencies = [
   {name: 'lodash', as: '_'}
-  {name: 'yess', as: 'yess'}
-  {name: 'coffee-concerns'}
+  {name: 'yess'}
 ]
 
 gulp.task 'build', ->
@@ -30,7 +29,7 @@ gulp.task 'build', ->
 
 gulp.task 'build-min', ['build'], ->
   gulp.src('build/strict-parameters.js')
-  .pipe uglify(preserveComments: 'all')
+  .pipe uglify()
   .pipe rename('yess.min.js')
   .pipe gulp.dest('build')
 

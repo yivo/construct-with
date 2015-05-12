@@ -3,28 +3,28 @@
 
   (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
-      define(['lodash', 'yess', 'coffee-concerns'], function(_, yess) {
-        return root.StrictParameters = factory(root, _, yess);
+      define(['lodash', 'yess'], function(_) {
+        return root.StrictParameters = factory(root, _);
       });
     } else if (typeof module === 'object' && typeof module.exports === 'object') {
-      module.exports = factory(root, require('lodash'), require('yess'), require('coffee-concerns'));
+      module.exports = factory(root, require('lodash'), require('yess'));
     } else {
-      root.StrictParameters = factory(root, root._, root.yess);
+      root.StrictParameters = factory(root, root._);
     }
-  })(this, function(root, _, yess) {
-    var extend, hasOwnProp, isFunction, isPlainObject, traverseObject;
-    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject, traverseObject = _.traverseObject;
+  })(this, function(root, _) {
+    var extend, getProperty, hasOwnProp, isFunction, isPlainObject, setProperty;
+    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject, getProperty = _.getProperty, setProperty = _.setProperty;
     hasOwnProp = {}.hasOwnProperty;
     return {
       InstanceMembers: {
         mergeParams: function(data) {
-          var alias, as, config, j, len, name, param, ref, required;
+          var alias, as, config, j, len, name, param, ref, ref1, required;
           if (!isPlainObject(data)) {
             return this;
           }
           if (this.options) {
             if (isFunction(this.options)) {
-              this.options = this.options.call(this);
+              this.options = this.options();
             }
             extend(this.options, data);
           } else {
@@ -35,17 +35,14 @@
           }
           for (j = 0, len = config.length; j < len; j++) {
             ref = config[j], name = ref.name, as = ref.as, required = ref.required, alias = ref.alias;
-            param = traverseObject(data, name);
-            if (param == null) {
-              param = traverseObject(this, name);
-            }
-            if ((param == null) && required) {
-              throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
-            } else {
-              this[as] = param;
+            param = (ref1 = getProperty(data, name)) != null ? ref1 : getProperty(this, name);
+            if (param != null) {
+              setProperty(this, as, param);
               if (alias) {
-                this[alias] = param;
+                setProperty(this, alias, param);
               }
+            } else if (required) {
+              throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
             }
           }
           return this;

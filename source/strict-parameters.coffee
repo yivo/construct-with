@@ -6,13 +6,14 @@ InstanceMembers:
   mergeParams: (data) ->
     return this unless isPlainObject(data)
 
-    if @options
+    @options = if @options
       # Let the initial options be a function
       if isFunction(@options)
-        @options = @options()
-      extend(@options, data)
+        extend(@options(), data)
+      else
+        extend({}, @options, data)
     else
-      @options = data
+      data
 
     return this unless config = @claimedParameters
 
@@ -30,6 +31,7 @@ InstanceMembers:
     this
 
 ClassMembers:
+
   param: (name, options) ->
     prototype = this::
 

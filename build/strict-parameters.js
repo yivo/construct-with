@@ -12,34 +12,74 @@
       root.StrictParameters = factory(root, root._);
     }
   })(this, function(root, _) {
-    var extend, getProperty, hasOwnProp, isFunction, isPlainObject, setProperty;
-    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject, getProperty = _.getProperty, setProperty = _.setProperty;
+    var classParameters, extend, hasOwnProp, isFunction, isPlainObject, propertyAccessorsGet, propertyAccessorsSet, ref, ref1, ref2, ref3, simpleGetProperty, simpleSetProperty, storeParameter;
+    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject;
     hasOwnProp = {}.hasOwnProperty;
+    simpleGetProperty = _.getProperty;
+    simpleSetProperty = _.setProperty;
+    propertyAccessorsGet = (ref = root.PropertyAccessors) != null ? (ref1 = ref.InstanceMembers) != null ? ref1.get : void 0 : void 0;
+    propertyAccessorsSet = (ref2 = root.PropertyAccessors) != null ? (ref3 = ref2.InstanceMembers) != null ? ref3.set : void 0 : void 0;
+    classParameters = function(klass) {
+      var parameters, prototype;
+      prototype = klass.prototype;
+      parameters = prototype.claimedParameters;
+      if (!parameters) {
+        return prototype.claimedParameters = [];
+      } else if (hasOwnProp.call(prototype, 'claimedParameters') === false) {
+        return prototype.claimedParameters = [].concat(parameters);
+      } else {
+        return parameters;
+      }
+    };
+    storeParameter = function(container, name, options) {
+      var i, index, j, len, parameter, present;
+      index = -1;
+      for (i = j = 0, len = container.length; j < len; i = ++j) {
+        present = container[i];
+        if (!(present.name === name)) {
+          continue;
+        }
+        index = i;
+        break;
+      }
+      if (index > -1) {
+        parameter = container[index];
+      }
+      parameter = extend({
+        name: name
+      }, parameter, options);
+      parameter.as || (parameter.as = name.slice(name.lastIndexOf('.') + 1));
+      if (index > -1) {
+        container[index] = parameter;
+      } else {
+        container.push(parameter);
+      }
+      return parameter;
+    };
     return {
       InstanceMembers: {
         mergeParams: function(data) {
-          var alias, as, config, j, len, name, param, ref, ref1, required;
-          if (!isPlainObject(data)) {
+          var alias, as, j, len, name, param, params, ref4, required;
+          if (!isPlainObject(data) || !(params = this.claimedParameters)) {
             return this;
           }
-          if (this.options) {
-            if (isFunction(this.options)) {
-              this.options = this.options();
+          for (j = 0, len = params.length; j < len; j++) {
+            ref4 = params[j], name = ref4.name, as = ref4.as, required = ref4.required, alias = ref4.alias;
+            param = propertyAccessorsGet ? propertyAccessorsGet.call(data, name) : simpleGetProperty(data, name);
+            if (param == null) {
+              param = this.get ? this.get(name) : simpleGetProperty(this, name);
             }
-            extend(this.options, data);
-          } else {
-            this.options = data;
-          }
-          if (!(config = this.claimedParameters)) {
-            return this;
-          }
-          for (j = 0, len = config.length; j < len; j++) {
-            ref = config[j], name = ref.name, as = ref.as, required = ref.required, alias = ref.alias;
-            param = (ref1 = getProperty(data, name)) != null ? ref1 : getProperty(this, name);
             if (param != null) {
-              setProperty(this, as, param);
-              if (alias) {
-                setProperty(this, alias, param);
+              if (this.set) {
+                this.set(as, param);
+                if (alias) {
+                  this.set(alias, param);
+                }
+              } else {
+                simpleSetProperty(this, as, param);
+                if (alias) {
+                  simpleSetProperty(this, alias, param);
+                }
               }
             } else if (required) {
               throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
@@ -50,36 +90,13 @@
       },
       ClassMembers: {
         param: function(name, options) {
-          var i, index, j, len, param, params, present, prototype;
-          prototype = this.prototype;
-          params = prototype.claimedParameters;
-          if (!params) {
-            params = prototype.claimedParameters = [];
-          } else if (!hasOwnProp.call(prototype, 'claimedParameters')) {
-            params = prototype.claimedParameters = [].concat(params);
-          }
-          index = -1;
-          for (i = j = 0, len = params.length; j < len; i = ++j) {
-            present = params[i];
-            if (!(present.name === name)) {
-              continue;
-            }
-            index = i;
-            break;
-          }
-          if (index > -1) {
-            param = params[index];
-          }
-          param = extend({
-            name: name
-          }, param, options);
-          param.as || (param.as = name.slice(name.lastIndexOf('.') + 1));
-          if (index > -1) {
-            params[index] = param;
-          } else {
-            params.push(param);
-          }
+          var container;
+          container = classParameters(this);
+          storeParameter(container, name, options);
           return this;
+        },
+        parameter: function() {
+          return this.param.apply(this, arguments);
         },
         params: function() {
           var j, k, last, len, name, names, options;

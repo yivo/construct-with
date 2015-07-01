@@ -12,8 +12,8 @@ plumber     = require 'gulp-plumber'
 gulp.task 'default', ['build', 'watch'], ->
 
 dependencies = [
-  {name: 'lodash', as: '_'}
-  {name: 'yess'}
+  {require: 'lodash', global: '_'}
+  {require: 'yess'}
 ]
 
 gulp.task 'build', ->

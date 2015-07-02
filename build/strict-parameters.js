@@ -11,14 +11,12 @@
     } else {
       root.StrictParameters = factory(root, root._);
     }
-  })(this, function(root, _) {
-    var classParameters, extend, hasOwnProp, isFunction, isPlainObject, propertyAccessorsGet, propertyAccessorsSet, ref, ref1, ref2, ref3, simpleGetProperty, simpleSetProperty, storeParameter;
-    extend = _.extend, isFunction = _.isFunction, isPlainObject = _.isPlainObject;
+  })(this, function(__root__, _) {
+    var classParameters, extend, get, hasOwnProp, isPlainObject, ref, ref1, set, storeParameter;
+    extend = _.extend, isPlainObject = _.isPlainObject;
     hasOwnProp = {}.hasOwnProperty;
-    simpleGetProperty = _.getProperty;
-    simpleSetProperty = _.setProperty;
-    propertyAccessorsGet = (ref = root.PropertyAccessors) != null ? (ref1 = ref.InstanceMembers) != null ? ref1.get : void 0 : void 0;
-    propertyAccessorsSet = (ref2 = root.PropertyAccessors) != null ? (ref3 = ref2.InstanceMembers) != null ? ref3.set : void 0 : void 0;
+    get = ((ref = __root__.PropertyAccessors) != null ? ref.get : void 0) || _.getProperty;
+    set = ((ref1 = __root__.PropertyAccessors) != null ? ref1.set : void 0) || _.setProperty;
     classParameters = function(klass) {
       var parameters, prototype;
       prototype = klass.prototype;
@@ -59,29 +57,30 @@
     return {
       InstanceMembers: {
         mergeParams: function(data) {
-          var alias, as, j, len, name, param, params, ref4, required;
+          var j, len, name, param, params, val;
           if (!isPlainObject(data) || !(params = this.claimedParameters)) {
             return this;
           }
           for (j = 0, len = params.length; j < len; j++) {
-            ref4 = params[j], name = ref4.name, as = ref4.as, required = ref4.required, alias = ref4.alias;
-            param = propertyAccessorsGet ? propertyAccessorsGet.call(data, name) : simpleGetProperty(data, name);
-            if (param == null) {
-              param = this.get ? this.get(name) : simpleGetProperty(this, name);
+            param = params[j];
+            name = param.name;
+            val = get(data, name);
+            if (val == null) {
+              val = this.get ? this.get(name) : get(this, name);
             }
-            if (param != null) {
+            if (val != null) {
               if (this.set) {
-                this.set(as, param);
-                if (alias) {
-                  this.set(alias, param);
+                this.set(param.as, val);
+                if (param.alias) {
+                  this.set(param.alias, val);
                 }
               } else {
-                simpleSetProperty(this, as, param);
-                if (alias) {
-                  simpleSetProperty(this, alias, param);
+                set(this, param.as, val);
+                if (param.alias) {
+                  set(this, param.alias, val);
                 }
               }
-            } else if (required) {
+            } else if (param.required) {
               throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
             }
           }

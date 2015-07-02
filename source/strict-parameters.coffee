@@ -1,9 +1,7 @@
-{extend, isFunction, isPlainObject} = _
-hasOwnProp            = {}.hasOwnProperty
-simpleGetProperty     = _.getProperty
-simpleSetProperty     = _.setProperty
-propertyAccessorsGet  = root.PropertyAccessors?.InstanceMembers?.get
-propertyAccessorsSet  = root.PropertyAccessors?.InstanceMembers?.set
+{extend, isPlainObject} = _
+hasOwnProp  = {}.hasOwnProperty
+get         = __root__.PropertyAccessors?.get or _.getProperty
+set         = __root__.PropertyAccessors?.set or _.setProperty
 
 classParameters = (klass) ->
   prototype  = klass::
@@ -40,27 +38,24 @@ InstanceMembers:
   mergeParams: (data) ->
     return this if not isPlainObject(data) or not (params = @claimedParameters)
 
-    for {name, as, required, alias} in params
-      param = if propertyAccessorsGet
-        propertyAccessorsGet.call(data, name)
-      else
-        simpleGetProperty(data, name)
-
-      param ?= if @get
+    for param in params
+      name = param.name
+      val  = get(data, name)
+      val ?= if @get
         @get(name)
       else
-        simpleGetProperty(this, name)
+        get(this, name)
 
-      if param?
+      if val?
         if @set
-          @set(as, param)
-          @set(alias, param) if alias
+          @set(param.as, val)
+          @set(param.alias, val) if param.alias
 
         else
-          simpleSetProperty(this, as, param)
-          simpleSetProperty(this, alias, param) if alias
+          set(this, param.as, val)
+          set(this, param.alias, val) if param.alias
 
-      else if required
+      else if param.required
         throw new Error("#{@constructor.name or this} requires parameter '#{name}' to present (in #{this})")
     this
 

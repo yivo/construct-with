@@ -8,19 +8,16 @@
     root.StrictParameters = factory(root, root._)
   return
 )(this, (__root__, _) ->
-  {extend, isPlainObject} = _
-  hasOwnProp  = {}.hasOwnProperty
-  get         = __root__.PropertyAccessors?.get or _.getProperty
-  set         = __root__.PropertyAccessors?.set or _.setProperty
+  {extend, isObject, isFunction, getProperty, setProperty} = _
   
-  classParameters = (klass) ->
-    prototype  = klass::
+  classParameters = (Class) ->
+    prototype  = Class::
     parameters = prototype.claimedParameters
   
     unless parameters
       prototype.claimedParameters = []
   
-    else if hasOwnProp.call(prototype, 'claimedParameters') is false
+    else if prototype.hasOwnProperty('claimedParameters') is false
       prototype.claimedParameters = [].concat(parameters)
   
     else
@@ -46,24 +43,25 @@
   InstanceMembers:
   
     mergeParams: (data) ->
-      return this if not isPlainObject(data) or not (params = @claimedParameters)
+      options = @options
+      options = @options() if isFunction(options)
+  
+      if isObject(data)
+        if isObject(options)
+          extend(options, data)
+        else
+          options = extend({}, data)
+      else return this
+  
+      return this unless (params = @claimedParameters)
   
       for param in params
         name = param.name
-        val  = get(data, name)
-        val ?= if @get
-          @get(name)
-        else
-          get(this, name)
+        val  = getProperty(data, name) ? getProperty(this, name)
   
         if val?
-          if @set
-            @set(param.as, val)
-            @set(param.alias, val) if param.alias
-  
-          else
-            set(this, param.as, val)
-            set(this, param.alias, val) if param.alias
+          setProperty(this, param.as, val)
+          setProperty(this, param.alias, val) if param.alias
   
         else if param.required
           throw new Error("#{@constructor.name or this} requires parameter '#{name}' to present (in #{this})")
@@ -72,22 +70,16 @@
   ClassMembers:
   
     param: (name, options) ->
-      container = classParameters(this)
-      storeParameter(container, name, options)
-      this
+      @params(name, options)
   
-    parameter: ->
-      @param(arguments...)
+    params: ->
+      length    = arguments.length
+      options   = length > 0 and arguments[length - 1]
+      options   = undefined unless isObject(options)
+      index     = -1
+      container = classParameters(this) if length > 0
   
-    params: (names..., last) ->
-      # Last argument can be either name, either options
-      options = last if isPlainObject(last)
-  
-      for name in names
-        @param(name, options)
-  
-      # If last arg isn't options then it is name
-      unless options
-        @param(last)
+      while ++index < length and arguments[index] isnt options
+        storeParameter(container, arguments[index], options)
       this
 )

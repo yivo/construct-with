@@ -33,17 +33,11 @@ storeParameter = (container, name, options) ->
 InstanceMembers:
 
   mergeParams: (data) ->
-    options = @options
-    options = @options() if isFunction(options)
+    options  = @options
+    options  = @options() if isFunction(options)
+    @options = extend({}, options, data)
 
-    if isObject(data)
-      if isObject(options)
-        extend(options, data)
-      else
-        options = extend({}, data)
-    else return this
-
-    return this unless (params = @claimedParameters)
+    return this if not isObject(data) or not (params = @claimedParameters)
 
     for param in params
       name = param.name

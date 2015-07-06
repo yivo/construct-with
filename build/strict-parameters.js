@@ -57,16 +57,8 @@
           if (isFunction(options)) {
             options = this.options();
           }
-          if (isObject(data)) {
-            if (isObject(options)) {
-              extend(options, data);
-            } else {
-              options = extend({}, data);
-            }
-          } else {
-            return this;
-          }
-          if (!(params = this.claimedParameters)) {
+          this.options = extend({}, options, data);
+          if (!isObject(data) || !(params = this.claimedParameters)) {
             return this;
           }
           for (j = 0, len = params.length; j < len; j++) {

@@ -30,7 +30,7 @@ gulp.task 'build', ->
 gulp.task 'build-min', ['build'], ->
   gulp.src('build/strict-parameters.js')
   .pipe uglify()
-  .pipe rename('yess.min.js')
+  .pipe rename('strict-parameters.min.js')
   .pipe gulp.dest('build')
 
 gulp.task 'watch', ->

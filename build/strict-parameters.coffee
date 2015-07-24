@@ -12,13 +12,13 @@
   
   classParameters = (Class) ->
     prototype  = Class::
-    parameters = prototype.claimedParameters
+    parameters = prototype.__parameters
   
-    unless parameters
-      prototype.claimedParameters = []
+    if not parameters
+      prototype.__parameters = []
   
-    else if prototype.hasOwnProperty('claimedParameters') is false
-      prototype.claimedParameters = [].concat(parameters)
+    else if prototype.hasOwnProperty('__parameters') is false
+      prototype.__parameters = [].concat(parameters)
   
     else
       parameters
@@ -32,7 +32,10 @@
   
     parameter = container[index] if index > -1
     parameter = extend({name}, parameter, options)
-    parameter.as ||= name.slice(name.lastIndexOf('.') + 1)
+  
+    unless parameter.as
+      as = name.slice(name.lastIndexOf('.') + 1)
+      parameter.as = if prefix = parameter.prefix then prefix + as else as
   
     if index > -1
       container[index] = parameter
@@ -42,12 +45,12 @@
   
   InstanceMembers:
   
-    mergeParams: (data) ->
+    constructWith: (data) ->
       options  = @options
       options  = @options() if isFunction(options)
       @options = extend({}, options, data)
   
-      return this if not isObject(data) or not (params = @claimedParameters)
+      return this if not isObject(data) or not (params = @__parameters)
   
       for param in params
         name = param.name
@@ -58,7 +61,8 @@
           setProperty(this, param.alias, val) if param.alias
   
         else if param.required
-          throw new Error("#{@constructor.name or this} requires parameter '#{name}' to present (in #{this})")
+          throw new Error "[StrictParameters] #{@constructor.name or this} requires
+            parameter #{name} to present in constructor"
       this
   
   ClassMembers:

@@ -15,17 +15,17 @@
     classParameters = function(Class) {
       var parameters, prototype;
       prototype = Class.prototype;
-      parameters = prototype.claimedParameters;
+      parameters = prototype.__parameters;
       if (!parameters) {
-        return prototype.claimedParameters = [];
-      } else if (prototype.hasOwnProperty('claimedParameters') === false) {
-        return prototype.claimedParameters = [].concat(parameters);
+        return prototype.__parameters = [];
+      } else if (prototype.hasOwnProperty('__parameters') === false) {
+        return prototype.__parameters = [].concat(parameters);
       } else {
         return parameters;
       }
     };
     storeParameter = function(container, name, options) {
-      var i, index, j, len, parameter, present;
+      var as, i, index, j, len, parameter, prefix, present;
       index = -1;
       for (i = j = 0, len = container.length; j < len; i = ++j) {
         present = container[i];
@@ -41,7 +41,10 @@
       parameter = extend({
         name: name
       }, parameter, options);
-      parameter.as || (parameter.as = name.slice(name.lastIndexOf('.') + 1));
+      if (!parameter.as) {
+        as = name.slice(name.lastIndexOf('.') + 1);
+        parameter.as = (prefix = parameter.prefix) ? prefix + as : as;
+      }
       if (index > -1) {
         container[index] = parameter;
       } else {
@@ -51,14 +54,14 @@
     };
     return {
       InstanceMembers: {
-        mergeParams: function(data) {
+        constructWith: function(data) {
           var j, len, name, options, param, params, ref, val;
           options = this.options;
           if (isFunction(options)) {
             options = this.options();
           }
           this.options = extend({}, options, data);
-          if (!isObject(data) || !(params = this.claimedParameters)) {
+          if (!isObject(data) || !(params = this.__parameters)) {
             return this;
           }
           for (j = 0, len = params.length; j < len; j++) {
@@ -71,7 +74,7 @@
                 setProperty(this, param.alias, val);
               }
             } else if (param.required) {
-              throw new Error((this.constructor.name || this) + " requires parameter '" + name + "' to present (in " + this + ")");
+              throw new Error("[StrictParameters] " + (this.constructor.name || this) + " requires parameter " + name + " to present in constructor");
             }
           }
           return this;

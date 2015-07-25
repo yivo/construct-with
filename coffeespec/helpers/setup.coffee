@@ -1,1 +1,1 @@
-global.StrictParameters = require('../../build/strict-parameters.js')
+global.ConstructWith = require('../../build/construct-with.js')

@@ -1,8 +1,8 @@
 {
-  "name": "strict-parameters",
+  "name": "construct-with",
   "version": "1.0.0",
   "description": "",
-  "main": "build/strict-parameters.js",
+  "main": "build/construct-with.js",
   "scripts": {
     "test": "gulp build coffeespec && jasmine"
   },

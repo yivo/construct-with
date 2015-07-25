@@ -2,12 +2,12 @@
   (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
       define(['lodash', 'yess'], function(_) {
-        return root.StrictParameters = factory(root, _);
+        return root.ConstructWith = factory(root, _);
       });
     } else if (typeof module === 'object' && typeof module.exports === 'object') {
       module.exports = factory(root, require('lodash'), require('yess'));
     } else {
-      root.StrictParameters = factory(root, root._);
+      root.ConstructWith = factory(root, root._);
     }
   })(this, function(__root__, _) {
     var classParameters, extend, getProperty, isFunction, isObject, setProperty, storeParameter;
@@ -74,7 +74,7 @@
                 setProperty(this, param.alias, val);
               }
             } else if (param.required) {
-              throw new Error("[StrictParameters] " + (this.constructor.name || this) + " requires parameter " + name + " to present in constructor");
+              throw new Error("[ConstructWith] " + (this.constructor.name || this) + " requires parameter " + name + " to present in constructor");
             }
           }
           return this;

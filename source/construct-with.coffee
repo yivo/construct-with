@@ -51,7 +51,7 @@ InstanceMembers:
         setProperty(this, param.alias, val) if param.alias
 
       else if param.required
-        throw new Error "[StrictParameters] #{@constructor.name or this} requires
+        throw new Error "[ConstructWith] #{@constructor.name or this} requires
           parameter #{name} to present in constructor"
     this
 

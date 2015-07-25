@@ -1,11 +1,11 @@
 ((root, factory) ->
   if typeof define is 'function' and define.amd
     define ['lodash', 'yess'], (_) ->
-      root.StrictParameters = factory(root, _)
+      root.ConstructWith = factory(root, _)
   else if typeof module is 'object' && typeof module.exports is 'object'
     module.exports = factory(root, require('lodash'), require('yess'))
   else
-    root.StrictParameters = factory(root, root._)
+    root.ConstructWith = factory(root, root._)
   return
 )(this, (__root__, _) ->
   {extend, isObject, isFunction, getProperty, setProperty} = _
@@ -61,7 +61,7 @@
           setProperty(this, param.alias, val) if param.alias
   
         else if param.required
-          throw new Error "[StrictParameters] #{@constructor.name or this} requires
+          throw new Error "[ConstructWith] #{@constructor.name or this} requires
             parameter #{name} to present in constructor"
       this
   

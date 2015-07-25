@@ -20,17 +20,17 @@ gulp.task 'build', ->
   gulp.src('source/manifest.coffee')
   .pipe plumber()
   .pipe preprocess()
-  .pipe iife {global: 'StrictParameters', dependencies}
-  .pipe concat('strict-parameters.coffee')
+  .pipe iife {global: 'ConstructWith', dependencies}
+  .pipe concat('construct-with.coffee')
   .pipe gulp.dest('build')
   .pipe coffee()
-  .pipe concat('strict-parameters.js')
+  .pipe concat('construct-with.js')
   .pipe gulp.dest('build')
 
 gulp.task 'build-min', ['build'], ->
-  gulp.src('build/strict-parameters.js')
+  gulp.src('build/construct-with.js')
   .pipe uglify()
-  .pipe rename('strict-parameters.min.js')
+  .pipe rename('construct-with.min.js')
   .pipe gulp.dest('build')
 
 gulp.task 'watch', ->

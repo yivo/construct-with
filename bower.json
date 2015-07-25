@@ -1,0 +1,25 @@
+{
+  "name": "construct-with",
+  "version": "1.0.0",
+  "homepage": "https://github.com/yivo/construct-with",
+  "authors": [
+    "Yaroslav Konoplov <yaroslav@inbox.com>"
+  ],
+  "description": "Constructor with named parameters behaviour for JavaScript",
+  "main": "build/construct-with.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "coffeespec",
+    "source",
+    "spec"
+  ],
+  "dependencies": {
+    "lodash": "~3.10.0",
+    "yess": "git://github.com/yivo/yess"
+  }
+}

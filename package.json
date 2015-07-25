@@ -1,13 +1,17 @@
 {
   "name": "construct-with",
   "version": "1.0.0",
-  "description": "",
+  "description": "Constructor with named parameters behaviour for JavaScript",
   "main": "build/construct-with.js",
   "scripts": {
     "test": "gulp build coffeespec && jasmine"
   },
   "author": "Yaroslav Konoplov",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yivo/construct-with.git"
+  },
   "devDependencies": {
     "codo": "^2.0.11",
     "coffee-script": "^1.9.1",
@@ -25,7 +29,7 @@
     "preprocess": "^2.1.1"
   },
   "dependencies": {
-    "lodash": "^3.6.0",
+    "lodash": "^3.10.0",
     "yess": "git://github.com/yivo/yess"
   }
 }

@@ -1,35 +1,40 @@
 (function() {
-  (function(root, factory) {
+  var extend1 = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  (function(factory) {
+    var root;
+    root = typeof self === 'object' && (typeof self !== "undefined" && self !== null ? self.self : void 0) === self ? self : typeof global === 'object' && (typeof global !== "undefined" && global !== null ? global.global : void 0) === global ? global : void 0;
     if (typeof define === 'function' && define.amd) {
-      define(['lodash', 'yess'], function(_) {
+      define(['lodash', 'yess', 'exports'], function(_) {
         return root.ConstructWith = factory(root, _);
       });
-    } else if (typeof module === 'object' && typeof module.exports === 'object') {
+    } else if (typeof module === 'object' && module !== null && (module.exports != null) && typeof module.exports === 'object') {
       module.exports = factory(root, require('lodash'), require('yess'));
     } else {
       root.ConstructWith = factory(root, root._);
     }
-  })(this, function(__root__, _) {
-    var classParameters, extend, getProperty, isFunction, isObject, setProperty, storeParameter;
+  })(function(__root__, _) {
+    var MissingParameterError, classParameters, extend, getProperty, isFunction, isObject, setProperty, storeParameter;
     extend = _.extend, isObject = _.isObject, isFunction = _.isFunction, getProperty = _.getProperty, setProperty = _.setProperty;
     classParameters = function(Class) {
       var parameters, prototype;
       prototype = Class.prototype;
-      parameters = prototype.__parameters;
+      parameters = prototype.__params;
       if (!parameters) {
-        return prototype.__parameters = [];
-      } else if (prototype.hasOwnProperty('__parameters') === false) {
-        return prototype.__parameters = [].concat(parameters);
+        return prototype.__params = [];
+      } else if (prototype.hasOwnProperty('__params') === false) {
+        return prototype.__params = [].concat(parameters);
       } else {
         return parameters;
       }
     };
     storeParameter = function(container, name, options) {
-      var as, i, index, j, len, parameter, prefix, present;
+      var as, el, i, index, j, len, parameter, prefix;
       index = -1;
       for (i = j = 0, len = container.length; j < len; i = ++j) {
-        present = container[i];
-        if (!(present.name === name)) {
+        el = container[i];
+        if (!(el.name === name)) {
           continue;
         }
         index = i;
@@ -43,7 +48,8 @@
       }, parameter, options);
       if (!parameter.as) {
         as = name.slice(name.lastIndexOf('.') + 1);
-        parameter.as = (prefix = parameter.prefix) ? prefix + as : as;
+        prefix = parameter.prefix;
+        parameter.as = prefix ? prefix + as : as;
       }
       if (index > -1) {
         container[index] = parameter;
@@ -52,29 +58,45 @@
       }
       return parameter;
     };
+    MissingParameterError = (function(superClass) {
+      extend1(MissingParameterError, superClass);
+
+      function MissingParameterError(object, parameter) {
+        this.name = 'MissingParameterError';
+        this.message = "[ConstructWith] " + (object.constructor.name || object) + " requires parameter '" + parameter + "' to present in constructor";
+        MissingParameterError.__super__.constructor.call(this, this.message);
+        (typeof Error.captureStackTrace === "function" ? Error.captureStackTrace(this, this.name) : void 0) || (this.stack = new Error().stack);
+      }
+
+      return MissingParameterError;
+
+    })(Error);
     return {
+      included: function(Class) {
+        return Class.initializer('construct-with', function(data) {
+          var options;
+          options = isFunction(this.options) ? this.options() : this.options;
+          this.options = extend({}, options, data);
+          if (this.__params) {
+            this.constructWith(this.options);
+          }
+        });
+      },
       InstanceMembers: {
         constructWith: function(data) {
-          var j, len, name, options, param, params, ref, val;
-          options = this.options;
-          if (isFunction(options)) {
-            options = this.options();
-          }
-          this.options = extend({}, options, data);
-          if (!isObject(data) || !(params = this.__parameters)) {
-            return this;
-          }
-          for (j = 0, len = params.length; j < len; j++) {
-            param = params[j];
+          var j, len, name, param, ref, ref1, val;
+          ref = this.__params;
+          for (j = 0, len = ref.length; j < len; j++) {
+            param = ref[j];
             name = param.name;
-            val = (ref = getProperty(data, name)) != null ? ref : getProperty(this, name);
+            val = (ref1 = getProperty(data, name)) != null ? ref1 : getProperty(this, name);
             if (val != null) {
               setProperty(this, param.as, val);
               if (param.alias) {
                 setProperty(this, param.alias, val);
               }
             } else if (param.required) {
-              throw new Error("[ConstructWith] " + (this.constructor.name || this) + " requires parameter " + name + " to present in constructor");
+              throw new MissingParameterError(this, param.name);
             }
           }
           return this;

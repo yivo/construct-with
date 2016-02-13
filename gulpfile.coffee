@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 gulp.task 'build', ->
-  gulp.src('source/manifest.coffee')
+  gulp.src('source/construct-with.coffee')
   .pipe plumber()
   .pipe preprocess()
   .pipe iife {global: 'ConstructWith', dependencies}

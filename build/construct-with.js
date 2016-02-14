@@ -15,20 +15,21 @@
       root.ConstructWith = factory(root, root._);
     }
   })(function(__root__, _) {
-    var MissingParameterError, classParameters, extend, getProperty, isFunction, isObject, setProperty, storeParameter;
-    extend = _.extend, isObject = _.isObject, isFunction = _.isFunction, getProperty = _.getProperty, setProperty = _.setProperty;
-    classParameters = function(Class) {
-      var parameters, prototype;
-      prototype = Class.prototype;
-      parameters = prototype.__params;
-      if (!parameters) {
-        return prototype.__params = [];
-      } else if (prototype.hasOwnProperty('__params') === false) {
-        return prototype.__params = [].concat(parameters);
-      } else {
-        return parameters;
+    var MissingParameterError, extend, getProperty, isFunction, isObject, setProperty, storeParameter, supportsConst;
+    supportsConst = (function() {
+      try {
+        eval('const BLACKHOLE;');
+        return true;
+      } catch (_error) {
+        return false;
       }
-    };
+    })();
+    if (supportsConst) {
+      eval("const PARAMS = '_' + _.generateID();");
+    } else {
+      eval("var PARAMS = '_' + _.generateID();");
+    }
+    extend = _.extend, isObject = _.isObject, isFunction = _.isFunction, getProperty = _.getProperty, setProperty = _.setProperty;
     storeParameter = function(container, name, options) {
       var as, el, i, index, j, len, parameter, prefix;
       index = -1;
@@ -77,7 +78,7 @@
           var options;
           options = isFunction(this.options) ? this.options() : this.options;
           this.options = extend({}, options, data);
-          if (this.__params) {
+          if (this[PARAMS]) {
             this.constructWith(this.options);
           }
         });
@@ -85,7 +86,7 @@
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref, ref1, val;
-          ref = this.__params;
+          ref = this[PARAMS];
           for (j = 0, len = ref.length; j < len; j++) {
             param = ref[j];
             name = param.name;
@@ -115,7 +116,7 @@
           }
           index = -1;
           if (length > 0) {
-            container = classParameters(this);
+            container = this.reopenArray(PARAMS);
           }
           while (++index < length && arguments[index] !== options) {
             storeParameter(container, arguments[index], options);

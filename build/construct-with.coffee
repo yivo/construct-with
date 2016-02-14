@@ -26,18 +26,23 @@
   return
 
 )((__root__, _) ->
+  supportsConst = do ->
+    try
+      eval 'const BLACKHOLE;'
+      true
+    catch
+      false
+  
+  if supportsConst
+    eval """
+      const PARAMS = '_' + _.generateID();
+         """
+  else
+    eval """
+      var PARAMS = '_' + _.generateID();
+         """
+  
   {extend, isObject, isFunction, getProperty, setProperty} = _
-  
-  classParameters = (Class) ->
-    {prototype} = Class
-    parameters  = prototype.__params
-  
-    if not parameters
-      prototype.__params = []
-    else if prototype.hasOwnProperty('__params') is false
-      prototype.__params = [].concat(parameters)
-    else
-      parameters
   
   storeParameter = (container, name, options) ->
     index = -1
@@ -71,13 +76,13 @@
     Class.initializer 'construct-with', (data) ->
       options  = if isFunction(@options) then @options() else @options
       @options = extend({}, options, data)
-      @constructWith(@options) if @__params
+      @constructWith(@options) if this[PARAMS]
       return
   
   InstanceMembers:
   
     constructWith: (data) ->
-      for param in @__params
+      for param in this[PARAMS]
         name = param.name
         val  = getProperty(data, name) ? getProperty(this, name)
   
@@ -99,7 +104,7 @@
       options   = length > 0 and arguments[length - 1]
       options   = undefined unless isObject(options)
       index     = -1
-      container = classParameters(this) if length > 0
+      container = @reopenArray(PARAMS) if length > 0
   
       while ++index < length and arguments[index] isnt options
         storeParameter(container, arguments[index], options)

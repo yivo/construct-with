@@ -13,13 +13,11 @@ require('gulp-lazyload')
 
 gulp.task 'default', ['build', 'watch'], ->
 
-dependencies = [{require: 'lodash'}, {require: 'yess', global: '_'}]
-
 gulp.task 'build', ->
   gulp.src('source/construct-with.coffee')
   .pipe plumber()
   .pipe preprocess()
-  .pipe iife {global: 'ConstructWith', dependencies}
+  .pipe iife(global: 'ConstructWith', dependencies: [require: 'yess', global: '_'])
   .pipe concat('construct-with.coffee')
   .pipe replace(/PARAMS/g, "'_1'")
   .pipe gulp.dest('build')

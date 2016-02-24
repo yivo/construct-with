@@ -6,11 +6,11 @@
     var root;
     root = typeof self === 'object' && (typeof self !== "undefined" && self !== null ? self.self : void 0) === self ? self : typeof global === 'object' && (typeof global !== "undefined" && global !== null ? global.global : void 0) === global ? global : void 0;
     if (typeof define === 'function' && define.amd) {
-      define(['yess', 'lodash', 'exports'], function(_) {
+      define(['yess', 'exports'], function(_) {
         return root.ConstructWith = factory(root, _);
       });
     } else if (typeof module === 'object' && module !== null && (module.exports != null) && typeof module.exports === 'object') {
-      module.exports = factory(root, require('yess'), require('lodash'));
+      module.exports = factory(root, require('yess'));
     } else {
       root.ConstructWith = factory(root, root._);
     }
@@ -70,7 +70,7 @@
           }
         });
       },
-      VERSION: '1.0.1',
+      VERSION: '1.0.2',
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref, ref1, val;

@@ -10,13 +10,13 @@
 
   # AMD
   if typeof define is 'function' and define.amd
-    define ['yess', 'lodash', 'exports'], (_) ->
+    define ['yess', 'exports'], (_) ->
       root.ConstructWith = factory(root, _)
 
   # CommonJS
   else if typeof module is 'object' and module isnt null and
           module.exports? and typeof module.exports is 'object'
-    module.exports = factory(root, require('yess'), require('lodash'))
+    module.exports = factory(root, require('yess'))
 
   # Browser and the rest
   else
@@ -63,7 +63,7 @@
       @constructWith(@options) if this['_1']
       return
   
-  VERSION: '1.0.1'
+  VERSION: '1.0.2'
   
   InstanceMembers:
   

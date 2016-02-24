@@ -70,7 +70,7 @@
           }
         });
       },
-      VERSION: '1.0.2',
+      VERSION: '1.0.4',
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref, ref1, val;

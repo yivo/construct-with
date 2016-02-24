@@ -1,19 +1,3 @@
-supportsConst = do ->
-  try
-    eval 'const BLACKHOLE;'
-    true
-  catch
-    false
-
-if supportsConst
-  eval """
-    const PARAMS = '_' + _.generateID();
-       """
-else
-  eval """
-    var PARAMS = '_' + _.generateID();
-       """
-
 {extend, isObject, isFunction, getProperty, setProperty} = _
 
 storeParameter = (container, name, options) ->
@@ -40,7 +24,7 @@ class MissingParameterError extends Error
   constructor: (object, parameter) ->
     @name    = 'MissingParameterError'
     @message = "[ConstructWith] #{object.constructor.name or object} requires
-                parameter '#{parameter}' to present in constructor"
+                parameter #{parameter} to be passed in constructor"
     super(@message)
     Error.captureStackTrace?(this, @name) or (@stack = new Error().stack)
 
@@ -50,6 +34,8 @@ included: (Class) ->
     @options = extend({}, options, data)
     @constructWith(@options) if this[PARAMS]
     return
+
+VERSION: '1.0.1'
 
 InstanceMembers:
 

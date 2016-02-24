@@ -1,20 +1,19 @@
-gulp        = require 'gulp'
-connect     = require 'gulp-connect'
-concat      = require 'gulp-concat'
-coffee      = require 'gulp-coffee'
-preprocess  = require 'gulp-preprocess'
-iife        = require 'gulp-iife'
-uglify      = require 'gulp-uglify'
-rename      = require 'gulp-rename'
-del         = require 'del'
-plumber     = require 'gulp-plumber'
+require('gulp-lazyload')
+  gulp:       'gulp'
+  connect:    'gulp-connect'
+  concat:     'gulp-concat'
+  coffee:     'gulp-coffee'
+  preprocess: 'gulp-preprocess'
+  iife:       'gulp-iife'
+  uglify:     'gulp-uglify'
+  rename:     'gulp-rename'
+  del:        'del'
+  plumber:    'gulp-plumber'
+  replace:    'gulp-replace'
 
 gulp.task 'default', ['build', 'watch'], ->
 
-dependencies = [
-  {require: 'lodash', global: '_'}
-  {require: 'yess'}
-]
+dependencies = [{require: 'lodash'}, {require: 'yess', global: '_'}]
 
 gulp.task 'build', ->
   gulp.src('source/construct-with.coffee')
@@ -22,6 +21,7 @@ gulp.task 'build', ->
   .pipe preprocess()
   .pipe iife {global: 'ConstructWith', dependencies}
   .pipe concat('construct-with.coffee')
+  .pipe replace(/PARAMS/g, "'_1'")
   .pipe gulp.dest('build')
   .pipe coffee()
   .pipe concat('construct-with.js')
@@ -37,7 +37,9 @@ gulp.task 'watch', ->
   gulp.watch 'source/**/*', ['build']
 
 gulp.task 'coffeespec', ->
-  del.sync 'spec/**/*.js'
+  del.sync 'spec/**/*'
   gulp.src('coffeespec/**/*.coffee')
   .pipe coffee(bare: yes)
   .pipe gulp.dest('spec')
+  gulp.src('coffeespec/support/jasmine.json')
+  .pipe gulp.dest('spec/support')

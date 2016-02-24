@@ -6,29 +6,16 @@
     var root;
     root = typeof self === 'object' && (typeof self !== "undefined" && self !== null ? self.self : void 0) === self ? self : typeof global === 'object' && (typeof global !== "undefined" && global !== null ? global.global : void 0) === global ? global : void 0;
     if (typeof define === 'function' && define.amd) {
-      define(['lodash', 'yess', 'exports'], function(_) {
+      define(['yess', 'lodash', 'exports'], function(_) {
         return root.ConstructWith = factory(root, _);
       });
     } else if (typeof module === 'object' && module !== null && (module.exports != null) && typeof module.exports === 'object') {
-      module.exports = factory(root, require('lodash'), require('yess'));
+      module.exports = factory(root, require('yess'), require('lodash'));
     } else {
       root.ConstructWith = factory(root, root._);
     }
   })(function(__root__, _) {
-    var MissingParameterError, extend, getProperty, isFunction, isObject, setProperty, storeParameter, supportsConst;
-    supportsConst = (function() {
-      try {
-        eval('const BLACKHOLE;');
-        return true;
-      } catch (_error) {
-        return false;
-      }
-    })();
-    if (supportsConst) {
-      eval("const PARAMS = '_' + _.generateID();");
-    } else {
-      eval("var PARAMS = '_' + _.generateID();");
-    }
+    var MissingParameterError, extend, getProperty, isFunction, isObject, setProperty, storeParameter;
     extend = _.extend, isObject = _.isObject, isFunction = _.isFunction, getProperty = _.getProperty, setProperty = _.setProperty;
     storeParameter = function(container, name, options) {
       var as, el, i, index, j, len, parameter, prefix;
@@ -64,7 +51,7 @@
 
       function MissingParameterError(object, parameter) {
         this.name = 'MissingParameterError';
-        this.message = "[ConstructWith] " + (object.constructor.name || object) + " requires parameter '" + parameter + "' to present in constructor";
+        this.message = "[ConstructWith] " + (object.constructor.name || object) + " requires parameter " + parameter + " to be passed in constructor";
         MissingParameterError.__super__.constructor.call(this, this.message);
         (typeof Error.captureStackTrace === "function" ? Error.captureStackTrace(this, this.name) : void 0) || (this.stack = new Error().stack);
       }
@@ -78,15 +65,16 @@
           var options;
           options = isFunction(this.options) ? this.options() : this.options;
           this.options = extend({}, options, data);
-          if (this[PARAMS]) {
+          if (this['_1']) {
             this.constructWith(this.options);
           }
         });
       },
+      VERSION: '1.0.1',
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref, ref1, val;
-          ref = this[PARAMS];
+          ref = this['_1'];
           for (j = 0, len = ref.length; j < len; j++) {
             param = ref[j];
             name = param.name;
@@ -116,7 +104,7 @@
           }
           index = -1;
           if (length > 0) {
-            container = this.reopenArray(PARAMS);
+            container = this.reopenArray('_1');
           }
           while (++index < length && arguments[index] !== options) {
             storeParameter(container, arguments[index], options);

@@ -1,10 +1,10 @@
 {
   "name": "construct-with",
-  "version": "1.0.0",
-  "description": "Constructor with named parameters behaviour for JavaScript",
+  "version": "1.0.1",
+  "description": "Constructor with named parameters for JavaScript classes",
   "main": "build/construct-with.js",
   "scripts": {
-    "test": "gulp build coffeespec && jasmine"
+    "test": "gulp build coffeespec && jasmine && rm -rf spec"
   },
   "author": "Yaroslav Konoplov",
   "license": "MIT",
@@ -21,15 +21,17 @@
     "gulp-concat": "^2.2.0",
     "gulp-connect": "^2.0.5",
     "gulp-iife": "yivo/gulp-iife",
+    "gulp-lazyload": "git://github.com/yivo/gulp-lazyload",
     "gulp-plumber": "^1.0.0",
     "gulp-preprocess": "^1.2.0",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
     "gulp-uglify": "^1.2.0",
     "jasmine": "^2.2.1",
     "preprocess": "^2.1.1"
   },
   "dependencies": {
     "lodash": "^3.10.0",
-    "yess": "yivo/yess"
+    "yess": "^1.0.0"
   }
 }

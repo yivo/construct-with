@@ -10,13 +10,13 @@
 
   # AMD
   if typeof define is 'function' and define.amd
-    define ['lodash', 'yess', 'exports'], (_) ->
+    define ['yess', 'lodash', 'exports'], (_) ->
       root.ConstructWith = factory(root, _)
 
   # CommonJS
   else if typeof module is 'object' and module isnt null and
           module.exports? and typeof module.exports is 'object'
-    module.exports = factory(root, require('lodash'), require('yess'))
+    module.exports = factory(root, require('yess'), require('lodash'))
 
   # Browser and the rest
   else
@@ -26,22 +26,6 @@
   return
 
 )((__root__, _) ->
-  supportsConst = do ->
-    try
-      eval 'const BLACKHOLE;'
-      true
-    catch
-      false
-  
-  if supportsConst
-    eval """
-      const PARAMS = '_' + _.generateID();
-         """
-  else
-    eval """
-      var PARAMS = '_' + _.generateID();
-         """
-  
   {extend, isObject, isFunction, getProperty, setProperty} = _
   
   storeParameter = (container, name, options) ->
@@ -68,7 +52,7 @@
     constructor: (object, parameter) ->
       @name    = 'MissingParameterError'
       @message = "[ConstructWith] #{object.constructor.name or object} requires
-                  parameter '#{parameter}' to present in constructor"
+                  parameter #{parameter} to be passed in constructor"
       super(@message)
       Error.captureStackTrace?(this, @name) or (@stack = new Error().stack)
   
@@ -76,13 +60,15 @@
     Class.initializer 'construct-with', (data) ->
       options  = if isFunction(@options) then @options() else @options
       @options = extend({}, options, data)
-      @constructWith(@options) if this[PARAMS]
+      @constructWith(@options) if this['_1']
       return
+  
+  VERSION: '1.0.1'
   
   InstanceMembers:
   
     constructWith: (data) ->
-      for param in this[PARAMS]
+      for param in this['_1']
         name = param.name
         val  = getProperty(data, name) ? getProperty(this, name)
   
@@ -104,7 +90,7 @@
       options   = length > 0 and arguments[length - 1]
       options   = undefined unless isObject(options)
       index     = -1
-      container = @reopenArray(PARAMS) if length > 0
+      container = @reopenArray('_1') if length > 0
   
       while ++index < length and arguments[index] isnt options
         storeParameter(container, arguments[index], options)

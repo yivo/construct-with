@@ -63,7 +63,7 @@
       @constructWith(@options) if this['_1']
       return
   
-  VERSION: '1.0.4'
+  VERSION: '1.0.5'
   
   InstanceMembers:
   

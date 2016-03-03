@@ -11,22 +11,22 @@
   # AMD
   if typeof define is 'function' and define.amd
     define ['yess', 'exports'], (_) ->
-      root.ConstructWith = factory(root, _)
+      root.ConstructWith = factory(root, Error, Object, _)
 
   # CommonJS
   else if typeof module is 'object' and module isnt null and
           module.exports? and typeof module.exports is 'object'
-    module.exports = factory(root, require('yess'))
+    module.exports = factory(root, Error, Object, require('yess'))
 
   # Browser and the rest
   else
-    root.ConstructWith = factory(root, root._)
+    root.ConstructWith = factory(root, Error, Object, root._)
 
   # No return value
   return
 
-)((__root__, _) ->
-  {extend, isObject, isFunction, getProperty, setProperty} = _
+)((__root__, Error, Object, _) ->
+  {isObject, isFunction, getProperty, setProperty} = _
   
   storeParameter = (container, name, options) ->
     index = -1
@@ -48,6 +48,13 @@
       container.push(parameter)
     parameter
   
+  extend = __root__.Object.assign ? (obj, props1, props2) ->
+    if props1?
+      obj[k] = v for own k, v of props1
+    if props2?
+      obj[k] = v for own k, v of props2
+    obj
+  
   class MissingParameterError extends Error
     constructor: (object, parameter) ->
       @name    = 'MissingParameterError'
@@ -63,7 +70,7 @@
       @constructWith(@options) if this['_1']
       return
   
-  VERSION: '1.0.5'
+  VERSION: '1.0.6'
   
   InstanceMembers:
   
@@ -71,13 +78,9 @@
       for param in this['_1']
         name = param.name
         val  = getProperty(data, name) ? getProperty(this, name)
-  
-        if val?
-          setProperty(this, param.as,    val)
-          setProperty(this, param.alias, val) if param.alias
-  
-        else if param.required
-          throw new MissingParameterError(this, param.name)
+        setProperty(this, param.as,    val)
+        setProperty(this, param.alias, val) if param.alias?
+        throw new MissingParameterError(this, param.name) if not val? and param.required is true
       this
   
   ClassMembers:
@@ -95,5 +98,4 @@
       while ++index < length and arguments[index] isnt options
         storeParameter(container, arguments[index], options)
       this
-  
 )

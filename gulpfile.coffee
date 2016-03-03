@@ -13,11 +13,17 @@ require('gulp-lazyload')
 
 gulp.task 'default', ['build', 'watch'], ->
 
+dependencies = [
+  {require: 'yess', global: '_'}
+  {global: 'Error', native: yes}
+  {global: 'Object', native: yes}
+]
+
 gulp.task 'build', ->
   gulp.src('source/construct-with.coffee')
   .pipe plumber()
   .pipe preprocess()
-  .pipe iife(global: 'ConstructWith', dependencies: [require: 'yess', global: '_'])
+  .pipe iife({global: 'ConstructWith', dependencies})
   .pipe concat('construct-with.coffee')
   .pipe replace(/PARAMS/g, "'_1'")
   .pipe gulp.dest('build')
@@ -25,7 +31,7 @@ gulp.task 'build', ->
   .pipe concat('construct-with.js')
   .pipe gulp.dest('build')
 
-gulp.task 'build-min', ['build'], ->
+gulp.task 'build-min', ->
   gulp.src('build/construct-with.js')
   .pipe uglify()
   .pipe rename('construct-with.min.js')

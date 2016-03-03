@@ -1,4 +1,4 @@
-{extend, isObject, isFunction, getProperty, setProperty} = _
+{isObject, isFunction, getProperty, setProperty} = _
 
 storeParameter = (container, name, options) ->
   index = -1
@@ -20,6 +20,13 @@ storeParameter = (container, name, options) ->
     container.push(parameter)
   parameter
 
+extend = __root__.Object.assign ? (obj, props1, props2) ->
+  if props1?
+    obj[k] = v for own k, v of props1
+  if props2?
+    obj[k] = v for own k, v of props2
+  obj
+
 class MissingParameterError extends Error
   constructor: (object, parameter) ->
     @name    = 'MissingParameterError'
@@ -35,7 +42,7 @@ included: (Class) ->
     @constructWith(@options) if this[PARAMS]
     return
 
-VERSION: '1.0.5'
+VERSION: '1.0.6'
 
 InstanceMembers:
 
@@ -43,13 +50,9 @@ InstanceMembers:
     for param in this[PARAMS]
       name = param.name
       val  = getProperty(data, name) ? getProperty(this, name)
-
-      if val?
-        setProperty(this, param.as,    val)
-        setProperty(this, param.alias, val) if param.alias
-
-      else if param.required
-        throw new MissingParameterError(this, param.name)
+      setProperty(this, param.as,    val)
+      setProperty(this, param.alias, val) if param.alias?
+      throw new MissingParameterError(this, param.name) if not val? and param.required is true
     this
 
 ClassMembers:

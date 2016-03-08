@@ -70,7 +70,7 @@
       @constructWith(@options) if this['_1']
       return
   
-  VERSION: '1.0.6'
+  VERSION: '1.0.7'
   
   InstanceMembers:
   
@@ -78,9 +78,11 @@
       for param in this['_1']
         name = param.name
         val  = getProperty(data, name) ? getProperty(this, name)
-        setProperty(this, param.as,    val)
-        setProperty(this, param.alias, val) if param.alias?
-        throw new MissingParameterError(this, param.name) if not val? and param.required is true
+        if val?
+          setProperty(this, param.as,    val)
+          setProperty(this, param.alias, val) if param.alias?
+        else if param.required is true
+          throw new MissingParameterError(this, param.name)
       this
   
   ClassMembers:

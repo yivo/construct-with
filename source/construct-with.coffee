@@ -42,7 +42,7 @@ included: (Class) ->
     @constructWith(@options) if this[PARAMS]
     return
 
-VERSION: '1.0.6'
+VERSION: '1.0.7'
 
 InstanceMembers:
 
@@ -50,9 +50,11 @@ InstanceMembers:
     for param in this[PARAMS]
       name = param.name
       val  = getProperty(data, name) ? getProperty(this, name)
-      setProperty(this, param.as,    val)
-      setProperty(this, param.alias, val) if param.alias?
-      throw new MissingParameterError(this, param.name) if not val? and param.required is true
+      if val?
+        setProperty(this, param.as,    val)
+        setProperty(this, param.alias, val) if param.alias?
+      else if param.required is true
+        throw new MissingParameterError(this, param.name)
     this
 
 ClassMembers:

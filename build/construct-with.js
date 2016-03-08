@@ -88,7 +88,7 @@
           }
         });
       },
-      VERSION: '1.0.6',
+      VERSION: '1.0.7',
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref1, ref2, val;
@@ -97,11 +97,12 @@
             param = ref1[j];
             name = param.name;
             val = (ref2 = getProperty(data, name)) != null ? ref2 : getProperty(this, name);
-            setProperty(this, param.as, val);
-            if (param.alias != null) {
-              setProperty(this, param.alias, val);
-            }
-            if ((val == null) && param.required === true) {
+            if (val != null) {
+              setProperty(this, param.as, val);
+              if (param.alias != null) {
+                setProperty(this, param.alias, val);
+              }
+            } else if (param.required === true) {
               throw new MissingParameterError(this, param.name);
             }
           }

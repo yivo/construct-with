@@ -1,6 +1,6 @@
 {
   "name": "construct-with",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Constructor with named parameters for JavaScript classes",
   "main": "build/construct-with.js",
   "scripts": {

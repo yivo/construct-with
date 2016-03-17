@@ -88,7 +88,7 @@
           }
         });
       },
-      VERSION: '1.0.7',
+      VERSION: '1.0.8',
       InstanceMembers: {
         constructWith: function(data) {
           var j, len, name, param, ref1, ref2, val;

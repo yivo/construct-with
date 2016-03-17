@@ -42,7 +42,7 @@ included: (Class) ->
     @constructWith(@options) if this[PARAMS]
     return
 
-VERSION: '1.0.7'
+VERSION: '1.0.8'
 
 InstanceMembers:
 
